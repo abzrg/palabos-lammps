@@ -9,7 +9,7 @@ BraceWrapping:
   BeforeWhile: true
   SplitEmptyFunction: false
 BreakBeforeBraces: Custom
-ColumnLimit: 100
+ColumnLimit: 90
 IndentCaseLabels: true
 IndentWidth: 4
 SpaceAfterCStyleCast: true

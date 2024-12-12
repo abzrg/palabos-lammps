@@ -79,14 +79,14 @@ T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
     for (plint iN = 0; iN < maxN; iN += 2)
     {
         T twoNplusOne = (T) 2 * (T) iN + (T) 1;
-        sum += ((T) 1 /
-                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
+        sum += ((T) 1 / (std::pow(twoNplusOne, (T) 3) *
+                         std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
     }
     for (plint iN = 1; iN < maxN; iN += 2)
     {
         T twoNplusOne = (T) 2 * (T) iN + (T) 1;
-        sum -= ((T) 1 /
-                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
+        sum -= ((T) 1 / (std::pow(twoNplusOne, (T) 3) *
+                         std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
     }
 
     T alpha = -(T) 8 * uMax * pi * pi * pi /
@@ -96,7 +96,8 @@ T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
 }
 
 [[maybe_unused, nodiscard]]
-T poiseuilleVelocity(plint iX, plint iY, IncomprFlowParam<T> const &parameters, plint maxN)
+T poiseuilleVelocity(plint iX, plint iY, IncomprFlowParam<T> const &parameters,
+                     plint maxN)
 {
     const T Nx = parameters.getNx() - 1;
     const T Ny = parameters.getNy() - 1;
@@ -111,15 +112,19 @@ T poiseuilleVelocity(plint iX, plint iY, IncomprFlowParam<T> const &parameters, 
     for (plint iN = 0; iN < maxN; iN += 2)
     {
         T twoNplusOne = (T) 2 * (T) iN + (T) 1;
-        sum += (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx) /
-                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
+        sum +=
+            (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx) /
+             (std::pow(twoNplusOne, (T) 3) *
+              std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
     }
 
     for (plint iN = 1; iN < maxN; iN += 2)
     {
         T twoNplusOne = (T) 2 * (T) iN + (T) 1;
-        sum -= (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx) /
-                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
+        sum -=
+            (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx) /
+             (std::pow(twoNplusOne, (T) 3) *
+              std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
     }
 
     sum *= ((T) 4 * alpha * Nx * Nx / std::pow(pi, (T) 3));
@@ -132,7 +137,8 @@ template<typename T>
 class SquarePoiseuilleDensityAndVelocity
 {
 public:
-    SquarePoiseuilleDensityAndVelocity(IncomprFlowParam<T> const &parameters_, plint maxN_)
+    SquarePoiseuilleDensityAndVelocity(IncomprFlowParam<T> const &parameters_,
+                                       plint maxN_)
         : parameters(parameters_), maxN(maxN_)
     {}
 
@@ -262,7 +268,8 @@ void squarePoiseuilleSetup(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
 
     // initializeAtEquilibrium(lattice, lattice.getBoundingBox(),
     // SquarePoiseuilleDensityAndVelocity<T>(parameters, NMAX));
-    initializeAtEquilibrium(lattice, lattice.getBoundingBox(), (T) 1.0, Array<T, 3>(0.0, 0.0, 0.0));
+    initializeAtEquilibrium(lattice, lattice.getBoundingBox(), (T) 1.0,
+                            Array<T, 3>(0.0, 0.0, 0.0));
 
     lattice.initialize();
 }
@@ -280,19 +287,20 @@ T computeRMSerror(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
     // Divide by lattice velocity to normalize the error
     return 1. / parameters.getLatticeU() *
            // Compute RMS difference between analytical and numerical solution
-           std::sqrt(
-               computeAverage(*computeNormSqr(*subtract(analyticalVelocity, numericalVelocity))));
+           std::sqrt(computeAverage(
+               *computeNormSqr(*subtract(analyticalVelocity, numericalVelocity))));
 }
 
-void writeVTK(MultiBlockLattice3D<T, DESCRIPTOR> &lattice, IncomprFlowParam<T> const &parameters,
-              plint iter)
+void writeVTK(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
+              IncomprFlowParam<T> const &parameters, plint iter)
 {
     T dx = parameters.getDeltaX();
     T dt = parameters.getDeltaT();
     VtkImageOutput3D<T> vtkOut(createFileName("vtk", iter, 6), dx);
     vtkOut.writeData<float>(*computeVelocityNorm(lattice), "velocityNorm", dx / dt);
     vtkOut.writeData<3, float>(*computeVelocity(lattice), "velocity", dx / dt);
-    vtkOut.writeData<3, float>(*computeVorticity(*computeVelocity(lattice)), "vorticity", 1. / dt);
+    vtkOut.writeData<3, float>(*computeVorticity(*computeVelocity(lattice)), "vorticity",
+                               1. / dt);
 }
 
 } // namespace
@@ -331,7 +339,7 @@ int main(int argc, char *argv[])
 
     const T maxT = 100; // 6.6e4; // (T)0.01;
 
-    plint iSave = 10;   // 2000; // 10;
+    plint iSave = 10; // 2000; // 10;
     plint iCheck = 10 * iSave;
 
     writeLogFile(parameters, "3D square Poiseuille");
@@ -358,8 +366,8 @@ int main(int argc, char *argv[])
         new DYNAMICS<T>(parameters.getOmega()));
 
     // Cell<T,DESCRIPTOR> &cell = lattice.get(550,5500,550);
-    pcout << "dx " << parameters.getDeltaX() << " dt  " << parameters.getDeltaT() << " tau "
-          << parameters.getTau() << endl;
+    pcout << "dx " << parameters.getDeltaX() << " dt  " << parameters.getDeltaT()
+          << " tau " << parameters.getTau() << endl;
     // pcout<<"51 works"<<endl;
 
     /*
@@ -376,7 +384,8 @@ int main(int argc, char *argv[])
     squarePoiseuilleSetup(lattice, parameters, *boundaryCondition);
 
     // Loop over main time iteration.
-    util::ValueTracer<T> converge(parameters.getLatticeU(), parameters.getResolution(), 1.0e-3);
+    util::ValueTracer<T> converge(parameters.getLatticeU(), parameters.getResolution(),
+                                  1.0e-3);
     // coupling between lammps and palabos
 
     for (plint iT = 0; iT < 4e3; iT++)
