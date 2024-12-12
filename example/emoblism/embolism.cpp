@@ -378,8 +378,8 @@ int main(int argc, char *argv[])
     // Use periodic boundary conditions.
     // lattice.periodicity().toggle(2,true);
 
-    OnLatticeBoundaryCondition3D<T, DESCRIPTOR> *boundaryCondition =
-        createLocalBoundaryCondition3D<T, DESCRIPTOR>();
+    auto boundaryCondition = std::unique_ptr<OnLatticeBoundaryCondition3D<T, DESCRIPTOR>>(
+        createLocalBoundaryCondition3D<T, DESCRIPTOR>());
 
     squarePoiseuilleSetup(lattice, parameters, *boundaryCondition);
 
@@ -432,5 +432,4 @@ int main(int argc, char *argv[])
 
     timeduration = global::timer("mainloop").stop();
     pcout << "total execution time " << timeduration << endl;
-    delete boundaryCondition;
 }
