@@ -17,3 +17,5 @@ TabWidth: 4
 AccessModifierOffset: -4
 BreakTemplateDeclarations: Yes
 SpaceAfterTemplateKeyword: false
+Cpp11BracedListStyle: false
+BreakAfterAttributes: Leave # Always, Leave, Never
