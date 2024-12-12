@@ -69,10 +69,10 @@ constexpr T pi = T(M_PI);
 [[nodiscard]]
 T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
 {
-    const T a = parameters.getNx() - 1;
-    const T b = parameters.getNy() - 1;
+    const T Nx = parameters.getNx() - 1;
+    const T Ny = parameters.getNy() - 1;
 
-    const T nu = parameters.getLatticeNu();
+    const T Nu = parameters.getLatticeNu();
     const T uMax = parameters.getLatticeU();
 
     T sum = T();
@@ -80,29 +80,29 @@ T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
     {
         T twoNplusOne = (T) 2 * (T) iN + (T) 1;
         sum += ((T) 1 /
-                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * b / ((T) 2 * a))));
+                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
     }
     for (plint iN = 1; iN < maxN; iN += 2)
     {
         T twoNplusOne = (T) 2 * (T) iN + (T) 1;
         sum -= ((T) 1 /
-                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * b / ((T) 2 * a))));
+                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
     }
 
     T alpha = -(T) 8 * uMax * pi * pi * pi /
-              (a * a * (pi * pi * pi - (T) 32 * sum)); // alpha = -dp/dz / mu
-    T deltaP = -(alpha * nu);
+              (Nx * Nx * (pi * pi * pi - (T) 32 * sum)); // alpha = -dp/dz / mu
+    T deltaP = -(alpha * Nu);
     return deltaP;
 }
 
 [[maybe_unused, nodiscard]]
 T poiseuilleVelocity(plint iX, plint iY, IncomprFlowParam<T> const &parameters, plint maxN)
 {
-    const T a = parameters.getNx() - 1;
-    const T b = parameters.getNy() - 1;
+    const T Nx = parameters.getNx() - 1;
+    const T Ny = parameters.getNy() - 1;
 
-    const T x = (T) iX - a / (T) 2;
-    const T y = (T) iY - b / (T) 2;
+    const T x = (T) iX - Nx / (T) 2;
+    const T y = (T) iY - Ny / (T) 2;
 
     const T alpha = -poiseuillePressure(parameters, maxN) / parameters.getLatticeNu();
 
@@ -111,19 +111,19 @@ T poiseuilleVelocity(plint iX, plint iY, IncomprFlowParam<T> const &parameters, 
     for (plint iN = 0; iN < maxN; iN += 2)
     {
         T twoNplusOne = (T) 2 * (T) iN + (T) 1;
-        sum += (std::cos(twoNplusOne * pi * x / a) * std::cosh(twoNplusOne * pi * y / a) /
-                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * b / ((T) 2 * a))));
+        sum += (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx) /
+                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
     }
 
     for (plint iN = 1; iN < maxN; iN += 2)
     {
         T twoNplusOne = (T) 2 * (T) iN + (T) 1;
-        sum -= (std::cos(twoNplusOne * pi * x / a) * std::cosh(twoNplusOne * pi * y / a) /
-                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * b / ((T) 2 * a))));
+        sum -= (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx) /
+                (std::pow(twoNplusOne, (T) 3) * std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
     }
 
-    sum *= ((T) 4 * alpha * a * a / std::pow(pi, (T) 3));
-    sum += (alpha / (T) 2 * (x * x - a * a / (T) 4));
+    sum *= ((T) 4 * alpha * Nx * Nx / std::pow(pi, (T) 3));
+    sum += (alpha / (T) 2 * (x * x - Nx * Nx / (T) 4));
 
     return sum;
 }
@@ -213,17 +213,17 @@ void squarePoiseuilleSetup(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
                            IncomprFlowParam<T> const &parameters,
                            OnLatticeBoundaryCondition3D<T, DESCRIPTOR> &boundaryCondition)
 {
-    const plint nx = parameters.getNx();
-    const plint ny = parameters.getNy();
-    const plint nz = parameters.getNz();
-    Box3D top = Box3D(0, nx - 1, ny - 1, ny - 1, 0, nz - 1);
-    Box3D bottom = Box3D(0, nx - 1, 0, 0, 0, nz - 1);
+    const plint Nx = parameters.getNx();
+    const plint Ny = parameters.getNy();
+    const plint Nz = parameters.getNz();
+    Box3D top = Box3D(0, Nx - 1, Ny - 1, Ny - 1, 0, Nz - 1);
+    Box3D bottom = Box3D(0, Nx - 1, 0, 0, 0, Nz - 1);
 
-    Box3D inlet = Box3D(0, nx - 1, 1, ny - 2, 0, 0);
-    Box3D outlet = Box3D(0, nx - 1, 1, ny - 2, nz - 1, nz - 1);
+    Box3D inlet = Box3D(0, Nx - 1, 1, Ny - 2, 0, 0);
+    Box3D outlet = Box3D(0, Nx - 1, 1, Ny - 2, Nz - 1, Nz - 1);
 
-    Box3D left = Box3D(0, 0, 1, ny - 2, 1, nz - 2);
-    Box3D right = Box3D(nx - 1, nx - 1, 1, ny - 2, 1, nz - 2);
+    Box3D left = Box3D(0, 0, 1, Ny - 2, 1, Nz - 2);
+    Box3D right = Box3D(Nx - 1, Nx - 1, 1, Ny - 2, 1, Nz - 2);
     // shear flow top bottom surface
     /*
     boundaryCondition.setVelocityConditionOnBlockBoundaries ( lattice, inlet,
@@ -301,29 +301,39 @@ int main(int argc, char *argv[])
 {
     plbInit(&argc, &argv);
     global::directories().setOutputDir("./tmp/");
+
     /*
         if (argc != 2) {
             pcout << "Error the parameters are wrong. The structure must be :\n";
             pcout << "1 : N\n";
             exit(1);
-        }*/
+        }
+    */
 
-    // const plint N = atoi(argv[1]);
-    const plint N = 1; // atoi(argv[1]);
+    // Lattic resolution
+    const plint N = 1;
+    // or         = atoi(argv[1]);
+
+    // Reynolds number
     const T Re = 5e-3;
+
     [[maybe_unused]] const plint Nref = 50;
     [[maybe_unused]] const T uMaxRef = 0.01;
-    const T uMax = 0.00075; // uMaxRef /(T)N * (T)Nref; // Needed to avoid
-                            // compressibility errors.
+    // Characteristic velocity in lattice units (proportional to Mach number)
+    const T uMax = 0.00075;
+    // or        = uMaxRef / (T)N * (T) Nref; <- Needed to avoid compressibility errors.
 
     IncomprFlowParam<T> parameters(uMax, Re, N,
-                                   20., // lx
-                                   20., // ly
-                                   80.  // lz
+                                   20., // x-length (in dimensionless units)
+                                   20., // y-length ditto
+                                   80.  // z-length ditto
     );
-    const T maxT = 100; // 6.6e4; //(T)0.01;
-    plint iSave = 10;   // 2000;//10;
+
+    const T maxT = 100; // 6.6e4; // (T)0.01;
+
+    plint iSave = 10;   // 2000; // 10;
     plint iCheck = 10 * iSave;
+
     writeLogFile(parameters, "3D square Poiseuille");
 
     LammpsWrapper wrapper(argv, global::mpi().getGlobalCommunicator());
