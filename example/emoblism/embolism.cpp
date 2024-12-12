@@ -30,6 +30,10 @@
 #include <iostream>
 #include <vector>
 
+#if __cplusplus >= 202002L
+#include <numbers> // std::numbers::pi_v<T>
+#endif
+
 #include "input.h"
 #include "lammps.h"
 #include "lammpsWrapper.h"
@@ -56,7 +60,11 @@ using DYNAMICS = GuoExternalForceBGKdynamics<T, DESCRIPTOR>;
 
 constexpr unsigned int NMAX = 150U;
 
-const T pi = (T) 4. * std::atan((T) 1.);
+#if __cplusplus >= 202002L
+constexpr T pi = std::numbers::pi_v<T>;
+#else
+constexpr T pi = T(M_PI);
+#endif
 
 T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
 {
