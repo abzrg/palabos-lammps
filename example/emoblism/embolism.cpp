@@ -42,6 +42,8 @@
 using namespace plb;
 using namespace std;
 
+namespace {
+
 using T = double;
 
 template<typename T>
@@ -56,7 +58,7 @@ constexpr unsigned int NMAX = 150U;
 
 const T pi = (T) 4. * std::atan((T) 1.);
 
-static T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
+T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
 {
     const T a = parameters.getNx() - 1;
     const T b = parameters.getNy() - 1;
@@ -281,6 +283,8 @@ void writeVTK(MultiBlockLattice3D<T, DESCRIPTOR> &lattice, IncomprFlowParam<T> c
     vtkOut.writeData<3, float>(*computeVelocity(lattice), "velocity", dx / dt);
     vtkOut.writeData<3, float>(*computeVorticity(*computeVelocity(lattice)), "vorticity", 1. / dt);
 }
+
+} // namespace
 
 int main(int argc, char *argv[])
 {
