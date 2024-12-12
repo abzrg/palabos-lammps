@@ -42,13 +42,17 @@
 using namespace plb;
 using namespace std;
 
-typedef double T;
-//#define DESCRIPTOR descriptors::ForcedN2D3Q19Descriptor
-#define DESCRIPTOR descriptors::ForcedD3Q19Descriptor
-//#define DYNAMICS BGKdynamics<T, DESCRIPTOR>(parameters.getOmega())
-#define DYNAMICS GuoExternalForceBGKdynamics<T, DESCRIPTOR>(parameters.getOmega())
+using T = double;
 
-#define NMAX 150
+template<typename T>
+using DESCRIPTOR = descriptors::ForcedD3Q19Descriptor<T>;
+//               = descriptors::ForcedN2D3Q19Descriptor;  <- does not exist in plb
+
+template<typename T>
+using DYNAMICS = GuoExternalForceBGKdynamics<T, DESCRIPTOR>;
+// Or:         = BGKdynamics<T, DESCRIPTOR>;
+
+constexpr unsigned int NMAX = 150U;
 
 const T pi = (T)4.*std::atan((T)1.);
 
@@ -306,7 +310,7 @@ int main(int argc, char* argv[]) {
                defaultMultiBlockPolicy3D().getBlockCommunicator(),
                defaultMultiBlockPolicy3D().getCombinedStatistics(),
                defaultMultiBlockPolicy3D().getMultiCellAccess<T,DESCRIPTOR>(),
-               new DYNAMICS );
+               new DYNAMICS<T>(parameters.getOmega()) );
     
     //Cell<T,DESCRIPTOR> &cell = lattice.get(550,5500,550);
     pcout<<"dx "<<parameters.getDeltaX()<<" dt  "<<parameters.getDeltaT()<<" tau "<<parameters.getTau()<<endl;
@@ -315,7 +319,7 @@ int main(int argc, char* argv[]) {
 /*
     MultiBlockLattice3D<T, DESCRIPTOR> lattice (
         parameters.getNx(), parameters.getNy(), parameters.getNz(), 
-        new DYNAMICS );*/
+        new DYNAMICS<T>(parameters.getOmega()) );*/
 
     // Use periodic boundary conditions.
     //lattice.periodicity().toggle(2,true);
