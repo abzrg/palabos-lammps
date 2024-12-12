@@ -66,6 +66,7 @@ constexpr T pi = std::numbers::pi_v<T>;
 constexpr T pi = T(M_PI);
 #endif
 
+[[nodiscard]]
 T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
 {
     const T a = parameters.getNx() - 1;
@@ -94,6 +95,7 @@ T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
     return deltaP;
 }
 
+[[maybe_unused, nodiscard]]
 T poiseuilleVelocity(plint iX, plint iY, IncomprFlowParam<T> const &parameters, plint maxN)
 {
     const T a = parameters.getNx() - 1;
@@ -265,6 +267,7 @@ void squarePoiseuilleSetup(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
     lattice.initialize();
 }
 
+[[maybe_unused, nodiscard]]
 T computeRMSerror(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
                   IncomprFlowParam<T> const &parameters)
 {
@@ -308,8 +311,8 @@ int main(int argc, char *argv[])
     // const plint N = atoi(argv[1]);
     const plint N = 1; // atoi(argv[1]);
     const T Re = 5e-3;
-    const plint Nref = 50;
-    const T uMaxRef = 0.01;
+    [[maybe_unused]] const plint Nref = 50;
+    [[maybe_unused]] const T uMaxRef = 0.01;
     const T uMax = 0.00075; // uMaxRef /(T)N * (T)Nref; // Needed to avoid
                             // compressibility errors.
 
