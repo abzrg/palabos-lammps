@@ -30,6 +30,10 @@
 #include <iostream>
 #include <vector>
 
+#include <filesystem>
+namespace fs = std::filesystem;
+#include <system_error>
+
 #if __cplusplus >= 202002L
 #include <numbers> // std::numbers::pi_v<T>
 #endif
@@ -303,12 +307,26 @@ void writeVTK(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
                                1. / dt);
 }
 
+[[maybe_unused]] void mkdir(fs::path const &p)
+{
+    std::error_code ec{};
+    fs::create_directories(p, ec);
+    if (ec && ec != std::errc::file_exists)
+    {
+        std::cout << "Failed to create output directory. Error: " << ec.message();
+    }
+}
+
 } // namespace
 
 int main(int argc, char *argv[])
 {
     plbInit(&argc, &argv);
-    global::directories().setOutputDir("./tmp/");
+
+    // Create output directory
+    const fs::path outputDir = fs::current_path() / fs::path("tmp");
+    mkdir(outputDir);
+    global::directories().setOutputDir(outputDir);
 
     /*
         if (argc != 2) {
