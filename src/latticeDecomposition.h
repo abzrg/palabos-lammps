@@ -28,7 +28,7 @@
 //#include "palabos3D.hh"
 
 #include "mpi.h"
-#include "lammps.h"
+#include "lammps/lammps.h"
 
 namespace plb{
 

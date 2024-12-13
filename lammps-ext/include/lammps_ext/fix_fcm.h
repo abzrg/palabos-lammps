@@ -20,7 +20,7 @@ FixStyle(fcm,FixFCM)
 #ifndef LMP_FIX_FCM_H
 #define LMP_FIX_FCM_H
 
-#include "fix.h"
+#include "lammps/fix.h"
 
 namespace LAMMPS_NS {
 

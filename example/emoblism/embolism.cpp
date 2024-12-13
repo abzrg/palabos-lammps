@@ -38,10 +38,10 @@ namespace fs = std::filesystem;
 #include <numbers> // std::numbers::pi_v<T>
 #endif
 
-#include "input.h"
-#include "lammps.h"
+#include "lammps/input.h"
+#include "lammps/lammps.h"
 #include "lammpsWrapper.h"
-#include "library.h"
+#include "lammps/library.h"
 #include "mpi.h"
 
 #include "latticeDecomposition.h"

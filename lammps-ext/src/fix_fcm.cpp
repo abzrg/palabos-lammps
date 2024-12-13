@@ -14,12 +14,12 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdlib.h"
-#include "fix_fcm.h"
-#include "atom.h"
-#include "update.h"
-#include "memory.h"
-#include "error.h"
-#include "force.h"
+#include "lammps_ext/fix_fcm.h"
+#include "lammps/atom.h"
+#include "lammps/update.h"
+#include "lammps/memory.h"
+#include "lammps/error.h"
+#include "lammps/force.h"
 
 using namespace LAMMPS_NS;
 using namespace FixConst;

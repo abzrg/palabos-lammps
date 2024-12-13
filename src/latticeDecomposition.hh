@@ -25,8 +25,8 @@
 //#include "latticeDecomposition.h"
  
 // LAMMPS / LIGGGHTS includes
-#include "comm.h"
-#include "domain.h"
+#include "lammps/comm.h"
+#include "lammps/domain.h"
 //#include "mpi.h"
 
 namespace plb {

@@ -7,9 +7,9 @@
 // necessary LAMMPS includes
 
 #include "mpi.h"
-#include "lammps.h"
-#include "input.h"
-#include "library.h"
+#include "lammps/lammps.h"
+#include "lammps/input.h"
+#include "lammps/library.h"
 
 class LammpsWrapper {
 public:

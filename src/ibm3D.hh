@@ -21,11 +21,11 @@
 #ifndef IBM_LBM_3D_HH
 #define IBM_LBM_3D_HH
 
-#include "atom.h"
-#include "modify.h"
-#include "fix.h"
-#include "fix_fcm.h"
-#include "update.h"
+#include "lammps/atom.h"
+#include "lammps/modify.h"
+#include "lammps/fix.h"
+#include "lammps_ext/fix_fcm.h"
+#include "lammps/update.h"
 
 namespace plb {
   
