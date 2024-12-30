@@ -13,7 +13,7 @@
 
 #ifdef FIX_CLASS
 
-FixStyle(fcm,FixFCM)
+FixStyle(fcm, FixFCM)
 
 #else
 
@@ -25,53 +25,53 @@ FixStyle(fcm,FixFCM)
 namespace LAMMPS_NS {
 
 class FixFCM : public Fix {
- public:
-  double **fexternal;
+public:
+    double **fexternal;
 
-  FixFCM(class LAMMPS *, int, char **);
-  ~FixFCM();
-  int setmask();
-  void init();
-  void setup(int);
-  void min_setup(int);
-  void post_force(int);
-  void min_post_force(int);
-  void end_of_step();
-  //double compute_scalar();
+    FixFCM(class LAMMPS *, int, char **);
+    ~FixFCM();
+    int setmask();
+    void init();
+    void setup(int);
+    void min_setup(int);
+    void post_force(int);
+    void min_post_force(int);
+    void end_of_step();
+    // double compute_scalar();
 
-  //void set_energy(double eng);
+    // void set_energy(double eng);
 
-  double memory_usage();
-  void grow_arrays(int);
-  void copy_arrays(int, int, int);
-  int pack_exchange(int, double *);
-  int unpack_exchange(int, double *);
+    double memory_usage();
+    void grow_arrays(int);
+    void copy_arrays(int, int, int);
+    int pack_exchange(int, double *);
+    int unpack_exchange(int, double *);
 
-  //typedef void (*FnPtr)(void *, bigint, int, tagint *, double **, double **);
-  //void set_callback(FnPtr, void *);
+    // typedef void (*FnPtr)(void *, bigint, int, tagint *, double **, double **);
+    // void set_callback(FnPtr, void *);
 
- private:
-  int mode,ncall,napply;
-/*  FnPtr callback;
-  void *ptr_caller;
-  double user_energy;*/
+private:
+    int mode, ncall, napply;
+    /*  FnPtr callback;
+      void *ptr_caller;
+      double user_energy;*/
 };
 
-}
+}  // namespace LAMMPS_NS
 
 #endif
 #endif
 
-/* ERROR/WARNING messages:
+    /* ERROR/WARNING messages:
 
-E: Illegal ... command
+    E: Illegal ... command
 
-Self-explanatory.  Check the input script syntax and compare to the
-documentation for the command.  You can use -echo screen as a
-command-line option when running LAMMPS to see the offending line.
+    Self-explanatory.  Check the input script syntax and compare to the
+    documentation for the command.  You can use -echo screen as a
+    command-line option when running LAMMPS to see the offending line.
 
-E: Fix FCM callback function not set
+    E: Fix FCM callback function not set
 
-This must be done by an FCM program in order to use this fix.
+    This must be done by an FCM program in order to use this fix.
 
-*/
+    */

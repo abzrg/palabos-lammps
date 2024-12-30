@@ -35,13 +35,13 @@ namespace fs = std::filesystem;
 #include <system_error>
 
 #if __cplusplus >= 202002L
-#include <numbers> // std::numbers::pi_v<T>
+#include <numbers>  // std::numbers::pi_v<T>
 #endif
 
 #include "lammps/input.h"
 #include "lammps/lammps.h"
-#include "lammpsWrapper.h"
 #include "lammps/library.h"
+#include "lammpsWrapper.h"
 #include "mpi.h"
 
 #include "latticeDecomposition.h"
@@ -54,11 +54,11 @@ namespace {
 
 using T = double;
 
-template<typename T>
+template <typename T>
 using DESCRIPTOR = descriptors::ForcedD3Q19Descriptor<T>;
 //               = descriptors::ForcedN2D3Q19Descriptor;  <- does not exist in plb
 
-template<typename T>
+template <typename T>
 using DYNAMICS = GuoExternalForceBGKdynamics<T, DESCRIPTOR>;
 // Or:         = BGKdynamics<T, DESCRIPTOR>;
 
@@ -73,82 +73,73 @@ constexpr T pi = T(M_PI);
 [[nodiscard]]
 T poiseuillePressure(IncomprFlowParam<T> const &parameters, plint maxN)
 {
-    const T Nx = parameters.getNx() - 1;
-    const T Ny = parameters.getNy() - 1;
+    T const Nx = parameters.getNx() - 1;
+    T const Ny = parameters.getNy() - 1;
 
-    const T Nu = parameters.getLatticeNu();
-    const T uMax = parameters.getLatticeU();
+    T const Nu = parameters.getLatticeNu();
+    T const uMax = parameters.getLatticeU();
 
     T sum = T();
-    for (plint iN = 0; iN < maxN; iN += 2)
-    {
-        T twoNplusOne = (T) 2 * (T) iN + (T) 1;
-        sum += ((T) 1 / (std::pow(twoNplusOne, (T) 3) *
-                         std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
+    for (plint iN = 0; iN < maxN; iN += 2) {
+        T twoNplusOne = (T)2 * (T)iN + (T)1;
+        sum +=
+            ((T)1 / (std::pow(twoNplusOne, (T)3) * std::cosh(twoNplusOne * pi * Ny / ((T)2 * Nx))));
     }
-    for (plint iN = 1; iN < maxN; iN += 2)
-    {
-        T twoNplusOne = (T) 2 * (T) iN + (T) 1;
-        sum -= ((T) 1 / (std::pow(twoNplusOne, (T) 3) *
-                         std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
+    for (plint iN = 1; iN < maxN; iN += 2) {
+        T twoNplusOne = (T)2 * (T)iN + (T)1;
+        sum -=
+            ((T)1 / (std::pow(twoNplusOne, (T)3) * std::cosh(twoNplusOne * pi * Ny / ((T)2 * Nx))));
     }
 
-    T alpha = -(T) 8 * uMax * pi * pi * pi /
-              (Nx * Nx * (pi * pi * pi - (T) 32 * sum)); // alpha = -dp/dz / mu
+    T alpha = -(T)8 * uMax * pi * pi * pi
+              / (Nx * Nx * (pi * pi * pi - (T)32 * sum));  // alpha = -dp/dz / mu
     T deltaP = -(alpha * Nu);
     return deltaP;
 }
 
 [[maybe_unused, nodiscard]]
-T poiseuilleVelocity(plint iX, plint iY, IncomprFlowParam<T> const &parameters,
-                     plint maxN)
+T poiseuilleVelocity(plint iX, plint iY, IncomprFlowParam<T> const &parameters, plint maxN)
 {
-    const T Nx = parameters.getNx() - 1;
-    const T Ny = parameters.getNy() - 1;
+    T const Nx = parameters.getNx() - 1;
+    T const Ny = parameters.getNy() - 1;
 
-    const T x = (T) iX - Nx / (T) 2;
-    const T y = (T) iY - Ny / (T) 2;
+    T const x = (T)iX - Nx / (T)2;
+    T const y = (T)iY - Ny / (T)2;
 
-    const T alpha = -poiseuillePressure(parameters, maxN) / parameters.getLatticeNu();
+    T const alpha = -poiseuillePressure(parameters, maxN) / parameters.getLatticeNu();
 
     T sum = T();
 
-    for (plint iN = 0; iN < maxN; iN += 2)
-    {
-        T twoNplusOne = (T) 2 * (T) iN + (T) 1;
+    for (plint iN = 0; iN < maxN; iN += 2) {
+        T twoNplusOne = (T)2 * (T)iN + (T)1;
         sum +=
-            (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx) /
-             (std::pow(twoNplusOne, (T) 3) *
-              std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
+            (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx)
+             / (std::pow(twoNplusOne, (T)3) * std::cosh(twoNplusOne * pi * Ny / ((T)2 * Nx))));
     }
 
-    for (plint iN = 1; iN < maxN; iN += 2)
-    {
-        T twoNplusOne = (T) 2 * (T) iN + (T) 1;
+    for (plint iN = 1; iN < maxN; iN += 2) {
+        T twoNplusOne = (T)2 * (T)iN + (T)1;
         sum -=
-            (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx) /
-             (std::pow(twoNplusOne, (T) 3) *
-              std::cosh(twoNplusOne * pi * Ny / ((T) 2 * Nx))));
+            (std::cos(twoNplusOne * pi * x / Nx) * std::cosh(twoNplusOne * pi * y / Nx)
+             / (std::pow(twoNplusOne, (T)3) * std::cosh(twoNplusOne * pi * Ny / ((T)2 * Nx))));
     }
 
-    sum *= ((T) 4 * alpha * Nx * Nx / std::pow(pi, (T) 3));
-    sum += (alpha / (T) 2 * (x * x - Nx * Nx / (T) 4));
+    sum *= ((T)4 * alpha * Nx * Nx / std::pow(pi, (T)3));
+    sum += (alpha / (T)2 * (x * x - Nx * Nx / (T)4));
 
     return sum;
 }
 
-template<typename T>
-class SquarePoiseuilleDensityAndVelocity
-{
+template <typename T>
+class SquarePoiseuilleDensityAndVelocity {
 public:
-    SquarePoiseuilleDensityAndVelocity(IncomprFlowParam<T> const &parameters_,
-                                       plint maxN_)
-        : parameters(parameters_), maxN(maxN_)
-    {}
+    SquarePoiseuilleDensityAndVelocity(IncomprFlowParam<T> const &parameters_, plint maxN_) :
+        parameters(parameters_), maxN(maxN_)
+    { }
 
     void operator()(plint iX, plint iY, plint iZ, T &rho, Array<T, 3> &u) const
     {
-        rho = (T) 1;
+        rho = (T)1;
         u[0] = T();
         u[1] = T();
         u[2] = poiseuilleVelocity(iX, iY, parameters, maxN);
@@ -159,13 +150,12 @@ private:
     plint maxN;
 };
 
-template<typename T>
-class SquarePoiseuilleVelocity
-{
+template <typename T>
+class SquarePoiseuilleVelocity {
 public:
-    SquarePoiseuilleVelocity(IncomprFlowParam<T> const &parameters_, plint maxN_)
-        : parameters(parameters_), maxN(maxN_)
-    {}
+    SquarePoiseuilleVelocity(IncomprFlowParam<T> const &parameters_, plint maxN_) :
+        parameters(parameters_), maxN(maxN_)
+    { }
 
     void operator()(plint iX, plint iY, plint iZ, Array<T, 3> &u) const
     {
@@ -179,13 +169,12 @@ private:
     plint maxN;
 };
 
-template<typename T>
-class ShearTopVelocity
-{
+template <typename T>
+class ShearTopVelocity {
 public:
-    ShearTopVelocity(IncomprFlowParam<T> const &parameters_, plint maxN_)
-        : parameters(parameters_), maxN(maxN_)
-    {}
+    ShearTopVelocity(IncomprFlowParam<T> const &parameters_, plint maxN_) :
+        parameters(parameters_), maxN(maxN_)
+    { }
 
     void operator()(plint iX, plint iY, plint iZ, Array<T, 3> &u) const
     {
@@ -199,13 +188,12 @@ private:
     plint maxN;
 };
 
-template<typename T>
-class ShearBottomVelocity
-{
+template <typename T>
+class ShearBottomVelocity {
 public:
-    ShearBottomVelocity(IncomprFlowParam<T> const &parameters_, plint maxN_)
-        : parameters(parameters_), maxN(maxN_)
-    {}
+    ShearBottomVelocity(IncomprFlowParam<T> const &parameters_, plint maxN_) :
+        parameters(parameters_), maxN(maxN_)
+    { }
 
     void operator()(plint iX, plint iY, plint iZ, Array<T, 3> &u) const
     {
@@ -219,13 +207,13 @@ private:
     plint maxN;
 };
 
-void squarePoiseuilleSetup(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
-                           IncomprFlowParam<T> const &parameters,
-                           OnLatticeBoundaryCondition3D<T, DESCRIPTOR> &boundaryCondition)
+void squarePoiseuilleSetup(
+    MultiBlockLattice3D<T, DESCRIPTOR> &lattice, IncomprFlowParam<T> const &parameters,
+    OnLatticeBoundaryCondition3D<T, DESCRIPTOR> &boundaryCondition)
 {
-    const plint Nx = parameters.getNx();
-    const plint Ny = parameters.getNy();
-    const plint Nz = parameters.getNz();
+    plint const Nx = parameters.getNx();
+    plint const Ny = parameters.getNy();
+    plint const Nz = parameters.getNz();
     Box3D top = Box3D(0, Nx - 1, Ny - 1, Ny - 1, 0, Nz - 1);
     Box3D bottom = Box3D(0, Nx - 1, 0, 0, 0, Nz - 1);
 
@@ -265,66 +253,64 @@ void squarePoiseuilleSetup(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
     setBoundaryVelocity(lattice, inlet, SquarePoiseuilleVelocity<T>(parameters, NMAX));
     setBoundaryVelocity(lattice, outlet, SquarePoiseuilleVelocity<T>(parameters, NMAX));
 
-    setBoundaryVelocity(lattice, top, Array<T, 3>((T) 0.0, (T) 0.0, (T) 0.0));
-    setBoundaryVelocity(lattice, bottom, Array<T, 3>((T) 0.0, (T) 0.0, (T) 0.0));
-    setBoundaryVelocity(lattice, left, Array<T, 3>((T) 0.0, (T) 0.0, (T) 0.0));
-    setBoundaryVelocity(lattice, right, Array<T, 3>((T) 0.0, (T) 0.0, (T) 0.0));
+    setBoundaryVelocity(lattice, top, Array<T, 3>((T)0.0, (T)0.0, (T)0.0));
+    setBoundaryVelocity(lattice, bottom, Array<T, 3>((T)0.0, (T)0.0, (T)0.0));
+    setBoundaryVelocity(lattice, left, Array<T, 3>((T)0.0, (T)0.0, (T)0.0));
+    setBoundaryVelocity(lattice, right, Array<T, 3>((T)0.0, (T)0.0, (T)0.0));
 
     // initializeAtEquilibrium(lattice, lattice.getBoundingBox(),
     // SquarePoiseuilleDensityAndVelocity<T>(parameters, NMAX));
-    initializeAtEquilibrium(lattice, lattice.getBoundingBox(), (T) 1.0,
-                            Array<T, 3>(0.0, 0.0, 0.0));
+    initializeAtEquilibrium(lattice, lattice.getBoundingBox(), (T)1.0, Array<T, 3>(0.0, 0.0, 0.0));
 
     lattice.initialize();
 }
 
 [[maybe_unused, nodiscard]]
-T computeRMSerror(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
-                  IncomprFlowParam<T> const &parameters)
+T computeRMSerror(
+    MultiBlockLattice3D<T, DESCRIPTOR> &lattice, IncomprFlowParam<T> const &parameters)
 {
     MultiTensorField3D<T, 3> analyticalVelocity(lattice);
-    setToFunction(analyticalVelocity, analyticalVelocity.getBoundingBox(),
-                  SquarePoiseuilleVelocity<T>(parameters, NMAX));
+    setToFunction(
+        analyticalVelocity, analyticalVelocity.getBoundingBox(),
+        SquarePoiseuilleVelocity<T>(parameters, NMAX));
     MultiTensorField3D<T, 3> numericalVelocity(lattice);
     computeVelocity(lattice, numericalVelocity, lattice.getBoundingBox());
 
     // Divide by lattice velocity to normalize the error
     return 1. / parameters.getLatticeU() *
            // Compute RMS difference between analytical and numerical solution
-           std::sqrt(computeAverage(
-               *computeNormSqr(*subtract(analyticalVelocity, numericalVelocity))));
+           std::sqrt(
+               computeAverage(*computeNormSqr(*subtract(analyticalVelocity, numericalVelocity))));
 }
 
-void writeVTK(MultiBlockLattice3D<T, DESCRIPTOR> &lattice,
-              IncomprFlowParam<T> const &parameters, plint iter)
+void writeVTK(
+    MultiBlockLattice3D<T, DESCRIPTOR> &lattice, IncomprFlowParam<T> const &parameters, plint iter)
 {
     T dx = parameters.getDeltaX();
     T dt = parameters.getDeltaT();
     VtkImageOutput3D<T> vtkOut(createFileName("vtk", iter, 6), dx);
     vtkOut.writeData<float>(*computeVelocityNorm(lattice), "velocityNorm", dx / dt);
     vtkOut.writeData<3, float>(*computeVelocity(lattice), "velocity", dx / dt);
-    vtkOut.writeData<3, float>(*computeVorticity(*computeVelocity(lattice)), "vorticity",
-                               1. / dt);
+    vtkOut.writeData<3, float>(*computeVorticity(*computeVelocity(lattice)), "vorticity", 1. / dt);
 }
 
 [[maybe_unused]] void mkdir(fs::path const &p)
 {
-    std::error_code ec{};
+    std::error_code ec {};
     fs::create_directories(p, ec);
-    if (ec && ec != std::errc::file_exists)
-    {
+    if (ec && ec != std::errc::file_exists) {
         std::cout << "Failed to create output directory. Error: " << ec.message();
     }
 }
 
-} // namespace
+}  // namespace
 
 int main(int argc, char *argv[])
 {
     plbInit(&argc, &argv);
 
     // Create output directory
-    const fs::path outputDir = fs::current_path() / fs::path("tmp");
+    fs::path const outputDir = fs::current_path() / fs::path("tmp");
     mkdir(outputDir);
     global::directories().setOutputDir(outputDir);
 
@@ -337,27 +323,28 @@ int main(int argc, char *argv[])
     */
 
     // Lattic resolution
-    const plint N = 1;
+    plint const N = 1;
     // or         = atoi(argv[1]);
 
     // Reynolds number
-    const T Re = 5e-3;
+    T const Re = 5e-3;
 
-    [[maybe_unused]] const plint Nref = 50;
-    [[maybe_unused]] const T uMaxRef = 0.01;
+    [[maybe_unused]] plint const Nref = 50;
+    [[maybe_unused]] T const uMaxRef = 0.01;
     // Characteristic velocity in lattice units (proportional to Mach number)
-    const T uMax = 0.00075;
+    T const uMax = 0.00075;
     // or        = uMaxRef / (T)N * (T) Nref; <- Needed to avoid compressibility errors.
 
-    IncomprFlowParam<T> parameters(uMax, Re, N,
-                                   20., // x-length (in dimensionless units)
-                                   20., // y-length ditto
-                                   80.  // z-length ditto
+    IncomprFlowParam<T> parameters(
+        uMax, Re, N,
+        20.,  // x-length (in dimensionless units)
+        20.,  // y-length ditto
+        80.   // z-length ditto
     );
 
-    const T maxT = 100; // 6.6e4; // (T)0.01;
+    T const maxT = 100;  // 6.6e4; // (T)0.01;
 
-    plint iSave = 10; // 2000; // 10;
+    plint iSave = 10;  // 2000; // 10;
     plint iCheck = 10 * iSave;
 
     writeLogFile(parameters, "3D square Poiseuille");
@@ -370,8 +357,8 @@ int main(int argc, char *argv[])
     // vel(parameters.getNx(),parameters.getNy(),parameters.getNz());
     pcout << "Nx,Ny,Nz " << parameters.getNx() << " " << parameters.getNy() << " "
           << parameters.getNz() << endl;
-    LatticeDecomposition lDec(parameters.getNx(), parameters.getNy(), parameters.getNz(),
-                              wrapper.lmp);
+    LatticeDecomposition lDec(
+        parameters.getNx(), parameters.getNy(), parameters.getNz(), wrapper.lmp);
     SparseBlockStructure3D blockStructure = lDec.getBlockDistribution();
     ExplicitThreadAttribution *threadAttribution = lDec.getThreadAttribution();
     plint envelopeWidth = 2;
@@ -384,8 +371,8 @@ int main(int argc, char *argv[])
         new DYNAMICS<T>(parameters.getOmega()));
 
     // Cell<T,DESCRIPTOR> &cell = lattice.get(550,5500,550);
-    pcout << "dx " << parameters.getDeltaX() << " dt  " << parameters.getDeltaT()
-          << " tau " << parameters.getTau() << endl;
+    pcout << "dx " << parameters.getDeltaX() << " dt  " << parameters.getDeltaT() << " tau "
+          << parameters.getTau() << endl;
     // pcout<<"51 works"<<endl;
 
     /*
@@ -402,29 +389,24 @@ int main(int argc, char *argv[])
     squarePoiseuilleSetup(lattice, parameters, *boundaryCondition);
 
     // Loop over main time iteration.
-    util::ValueTracer<T> converge(parameters.getLatticeU(), parameters.getResolution(),
-                                  1.0e-3);
+    util::ValueTracer<T> converge(parameters.getLatticeU(), parameters.getResolution(), 1.0e-3);
     // coupling between lammps and palabos
 
-    for (plint iT = 0; iT < 4e3; iT++)
-    {
+    for (plint iT = 0; iT < 4e3; iT++) {
         lattice.collideAndStream();
     }
 
     T timeduration = T();
     global::timer("mainloop").start();
 
-    for (plint iT = 0; iT < maxT; ++iT)
-    {
+    for (plint iT = 0; iT < maxT; ++iT) {
         // for (plint iT=0; iT<2; ++iT) {
-        if (iT % iSave == 0 && iT > 0)
-        {
+        if (iT % iSave == 0 && iT > 0) {
             pcout << "Saving VTK file..." << endl;
             writeVTK(lattice, parameters, iT);
         }
 
-        if (iT % iCheck == 0 && iT > 0)
-        {
+        if (iT % iCheck == 0 && iT > 0) {
             pcout << "Timestep " << iT << " Saving checkPoint file..." << endl;
             saveBinaryBlock(lattice, "checkpoint.dat");
         }
@@ -433,8 +415,8 @@ int main(int argc, char *argv[])
         wrapper.execCommand("run 1 pre no post no");
         // Clear and spread fluid force
         Array<T, 3> force(0, 0., 0);
-        setExternalVector(lattice, lattice.getBoundingBox(),
-                          DESCRIPTOR<T>::ExternalField::forceBeginsAt, force);
+        setExternalVector(
+            lattice, lattice.getBoundingBox(), DESCRIPTOR<T>::ExternalField::forceBeginsAt, force);
 
         ////-----classical ibm coupling-------------//
         // spreadForce3D(lattice,wrapper);

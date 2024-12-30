@@ -21,75 +21,79 @@
 #include "lammpsWrapper.h"
 #include "mpi.h"
 #include <sstream>
-//#include "palabos3D.h"
-//#include "palabos3D.hh"
 
-LammpsWrapper::LammpsWrapper(char **argv, MPI_Comm communicator)
-  : lmp(0)
+// #include "palabos3D.h"
+// #include "palabos3D.hh"
+
+LammpsWrapper::LammpsWrapper(char **argv, MPI_Comm communicator) : lmp(0)
 {
-  // todo: get LAMMPS to recognize command line options
-  /*int argc_lmp = 1;
-  char **argv_lmp = 0;
-  argv_lmp = new char*[1];
-  argv_lmp[0] = argv[0];*/
-  //--------works for none output-----------//
-  int argc_lmp = 5;
-  char **argv_lmp = 0;
-  argv_lmp = new char*[5];
-  argv_lmp[0] = argv[0];
-  argv_lmp[1]="-sc";
-  argv_lmp[2]="none";
-  argv_lmp[3]="-log";
-  argv_lmp[4]="none";
+    // todo: get LAMMPS to recognize command line options
+    /*int argc_lmp = 1;
+    char **argv_lmp = 0;
+    argv_lmp = new char*[1];
+    argv_lmp[0] = argv[0];*/
+    //--------works for none output-----------//
+    int argc_lmp = 5;
+    char **argv_lmp = 0;
+    argv_lmp = new char *[5];
+    argv_lmp[0] = argv[0];
+    argv_lmp[1] = "-sc";
+    argv_lmp[2] = "none";
+    argv_lmp[3] = "-log";
+    argv_lmp[4] = "none";
 
-  lmp = new LAMMPS_NS::LAMMPS(argc_lmp,argv_lmp,communicator);
+    lmp = new LAMMPS_NS::LAMMPS(argc_lmp, argv_lmp, communicator);
 
-  //    delete[] argv_lmp[0];
-  delete[] argv_lmp;
+    //    delete[] argv_lmp[0];
+    delete[] argv_lmp;
 }
-void LammpsWrapper::execFile(char* const fname)
+
+void LammpsWrapper::execFile(char *const fname)
 {
-  lmp->input->file(fname);
+    lmp->input->file(fname);
 }
+
 void LammpsWrapper::execCommand(std::stringstream const &cmd)
 {
-  lmp->input->one(cmd.str().c_str());
-}
-void LammpsWrapper::execCommand(char* const cmd)
-{
-  lmp->input->one(cmd);
-}
-int LammpsWrapper::getNumParticles()
-{
-  return lammps_get_natoms(lmp);  
-}
-void LammpsWrapper::setVariable(char const *name, double value)
-{
-  std::stringstream cmd;
-  cmd << "variable " << name << " equal " << value;
-  //plb::pcout << cmd.str() << std::endl;
-  execCommand(cmd);
-}
-void LammpsWrapper::setVariable(char const *name, std::string &value)
-{
-  std::stringstream cmd;
-  cmd << "variable " << name << " string " << value;
-  //plb::pcout << cmd.str() << std::endl;
-  execCommand(cmd);
-}
-void LammpsWrapper::run(long int nSteps)
-{
-  std::stringstream cmd;
-  cmd << "run " << nSteps;
-  execCommand(cmd);
-}
-void LammpsWrapper::runUpto(long int nSteps)
-{
-  std::stringstream cmd;
-  cmd << "run " << nSteps << " upto";
-  execCommand(cmd);
+    lmp->input->one(cmd.str().c_str());
 }
 
-                              
-                           
-                           
+void LammpsWrapper::execCommand(char *const cmd)
+{
+    lmp->input->one(cmd);
+}
+
+int LammpsWrapper::getNumParticles()
+{
+    return lammps_get_natoms(lmp);
+}
+
+void LammpsWrapper::setVariable(char const *name, double value)
+{
+    std::stringstream cmd;
+    cmd << "variable " << name << " equal " << value;
+    // plb::pcout << cmd.str() << std::endl;
+    execCommand(cmd);
+}
+
+void LammpsWrapper::setVariable(char const *name, std::string &value)
+{
+    std::stringstream cmd;
+    cmd << "variable " << name << " string " << value;
+    // plb::pcout << cmd.str() << std::endl;
+    execCommand(cmd);
+}
+
+void LammpsWrapper::run(long int nSteps)
+{
+    std::stringstream cmd;
+    cmd << "run " << nSteps;
+    execCommand(cmd);
+}
+
+void LammpsWrapper::runUpto(long int nSteps)
+{
+    std::stringstream cmd;
+    cmd << "run " << nSteps << " upto";
+    execCommand(cmd);
+}
