@@ -13,14 +13,14 @@ PALABOS_ROOT := \
 ENVS := LAMMPS_INSTALL_PREFIX=$(LAMMPS_INSTALL_PREFIX) PALABOS_ROOT=$(PALABOS_ROOT)
 CMAKE := $(ENVS) cmake
 BUILDDIR := build
-__CMAKE_CACHE := $(BUILDDIR)/CMakeCache.txt
+_CMAKE_CACHE := $(BUILDDIR)/CMakeCache.txt
 
 $(if $(filter __%, $(MAKECMDGOALS)), \
 	$(error targets prefixed with '__' are only for internal use))
 
 # ---------------------------------------------------------------------------------------
 
-all:
+all: $(_CMAKE_CACHE)
 	$(CMAKE) --build $(BUILDDIR)
 
 
